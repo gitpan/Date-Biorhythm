@@ -1,0 +1,6 @@
+Revision history for Perl extension Date::Biorhythm.
+
+0.01  Wed Nov 21 15:24:10 2001
+	- original version; created by h2xs 1.1.1.4 with options
+		-A -X -n Date::Biorhythm
+

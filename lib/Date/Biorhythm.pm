@@ -1,85 +1,104 @@
 package Date::Biorhythm;
 
-use Date::Business;
-use Carp;
-use Data::Dumper;
-
-require 5.005_62;
 use strict;
 use warnings;
 
-our $VERSION = sprintf '%s', q{$Revision: 1.2 $} =~ /\S+\s+(\S+)/;
+use Moose;
+use Date::Calc::Object qw(:all);
+use Math::Trig qw(:pi pi);
 
-# Preloaded methods go here.
+our $VERSION = '2.0';
 
-our %birth;
-our $birth;
-
-sub new_date {
-  carp "A: @_";
-  return Date::Business->new unless @_;
-  my %hash = @_;
-  my $s = sprintf '%4d%02d%2d', $hash{year}, $hash{month}, $hash{day};
-  warn $s;
-  Date::Business->new(DATE => $s);
-}
-
-sub birth {
-  shift and $birth = new_date(@_);
-}
-
-our %wavelength = (
+our $WAVELENGTH = {
   emotional    => 28,
   intellectual => 33,
-  intuitional  => 38,
-  physical     => 23
+  intuitional  => 28,
+  physical     => 23,
+};
+
+our $SECONDARY_CYCLES = {
+  mastery => 1,
+  passion => 1,
+  wisdom  => 1,
+};
+
+has 'name' => (
+  is  => 'rw',
 );
 
-our %doi;
-our $doi;
+has 'birthday' => (
+  isa => 'Date::Calc::Object',
+  is  => 'rw',
+);
 
-our %position;
+has 'day' => (
+  isa => 'Date::Calc::Object',
+  is  => 'rw',
+);
 
+has '__cache' => (
+  is  => 'ro',
+);
+
+# initializer for constructor
+sub BUILD {
+  my $self   = shift;
+  my $params = shift;
+
+  die "birtday => REQUIRED!" if not defined $params->{birthday};
+
+  $self->{__cache} = {
+    emotional    => [],
+    intellectual => [],
+    intuitional  => [],
+    physical     => [],
+  };
+}
+
+# finalizer for destructor
+sub DEMOLISH { }
+
+# what day in the cycle are we in?
+sub index {
+  my ($self, $cycle) = @_;
+  my $diff  = $self->day - $self->birthday;
+  my $days  = abs($diff);
+  return $days % $WAVELENGTH->{$cycle};
+}
+
+# return the current amplitude of the cycle as a value between -1 and 1
+sub value {
+  my ($self, $cycle) = @_;
+  my $day   = $self->index($cycle);
+  if (exists($SECONDARY_CYCLES->{$cycle})) {
+    if ($cycle eq 'mastery') {
+      return ($self->value('intellectual') + $self->value('physical'))     / 2;
+    } elsif ($cycle eq 'passion') {
+      return ($self->value('physical')     + $self->value('emotional'))    / 2;
+    } elsif ($cycle eq 'wisdom') {
+      return ($self->value('emotional')    + $self->value('intellectual')) / 2;
+    }
+  } else {
+    if (exists($self->{__cache}{$cycle}[$day])) {
+      return $self->{__cache}{$cycle}[$day];
+    } else {
+      return $self->{__cache}{$cycle}[$day] = 
+        sin(pi2 * ($day / $WAVELENGTH->{$cycle}));
+    }
+  }
+}
+
+# go to the next day
 sub next {
-  $doi->next();
+  my ($self) = @_;
+  $self->{day}++;
 }
 
+# go to the previous day
 sub prev {
-  $doi->prev();
+  my ($self) = @_;
+  $self->{day}--;
 }
-
-sub chart {
-  shift and $doi = new_date(@_);
-  printf "Birth Date:\t%s\n", $birth->image;
-  printf "Chart Date:\t%s\n", $doi->image;
-  my $diff = $doi->diff($birth);
-  printf "Difference:\t%d days\n", $diff;
-
-  for (keys %wavelength) {
-    $position{$_} = $diff % $wavelength{$_};
-  }
-
-  for (keys %position) {
-    printf "you are at day %02d of %d in your %s cycle\n", $position{$_}, $wavelength{$_}, $_;
-  }
-}
-
-sub mk_method_for_position {
-  my $class    = shift;
-  my $position = shift;
-  {
-    no strict 'refs';
-    *{$position} = sub {
-      my $diff = $doi->diff($birth);
-      return $diff % $wavelength{$position};
-    };
-  }
-}
-
-Date::Biorhythm->mk_method_for_position('intellectual');
-Date::Biorhythm->mk_method_for_position('physical');
-Date::Biorhythm->mk_method_for_position('emotional');
-Date::Biorhythm->mk_method_for_position('intuitional');
 
 1;
 
@@ -87,56 +106,96 @@ __END__
 
 =head1 NAME
 
-Date::Biorhythm - calculate biorhythms
+Date::Biorhythm - a biorhythm calculator
 
 =head1 SYNOPSIS
 
-  use Date::Biorhythm
+Usage
 
-  Date::Biorhythm->birth (month => 5, day => 11, year => 1969); # my b'day!
-  Date::Biorhythm->chart (month => 11, day => 23, year => 2001);
-  Date::Biorhythm->chart (); # uses current time if no time given
+  use Date::Biorhythm;
+  my $bio = Date::Biorhythm->new({
+    birthday => Date::Calc::Object->new(0, 1970, 1, 1),
+    name     => 'Unix',
+  });
 
-  Birth Date:	19690511
-  Chart Date:	20011123
-  Difference:	11884 days
-
-  you are at day 04 of 33 in your intellectual cycle
-  you are at day 16 of 23 in your physical cycle
-  you are at day 12 of 28 in your emotional cycle
+  my $i = 0;
+  my $limit = 365;
+  $bio->day(Date::Calc::Object->today);
+  while ($i < $limit) {
+    print $bio->value('emotional'), "\n";
+    $bio->next;
+    $i++;
+  }
 
 =head1 DESCRIPTION
 
-Biorhythms are the most general cycles that your body has. While other
-cycles are easy to measure empirically (ie, circadian rhythms, rate of
-cell replacement), biorhythms are more general. It's almost like the
-difference between neurobiology and psychology.
+I find biorhythms mildly amusing, but I got tired of visiting
+http://www.facade.com/biorhythm and having to deal with their
+web-based form for date entry.
 
-=head1 General Facts About Biorhythms
+I vaguely remembered there being a Perl module for biorhythm
+calculation, but I couldn't find it on CPAN.  Further investigation
+finally led me to BackPAN where I found Date::Biorhythm 1.1 written
+by Terrence Brannon (a long time ago).
 
-=over 4
+Wanting an excuse to try L<Moose|Moose> out, I decided to make a
+new and modernized version of Date::Biorhythm, and this is the
+result.
 
-=item * Most vulnerable times within a cycle
+=head1 BUT WTF IS A BIORHYTHM?
 
-According to Gittleson, are when one switches from negative phase to
-positive *or* vice versa. These are called C<critical days>. He makes
-an analogy to the fact that a lightbulb is most likely to burn out
-when the light is switched from off to on or vice versa.
+http://en.wikipedia.org/wiki/Biorhythm
 
+=head1 METHODS
 
-=back
+=head2 meta
 
-=head2 EXPORT
+This method was added by Moose, and it gives you access to Date::Biorhythm's
+metaclass.  (See L<Moose|Moose> for more details.)
 
-None by default.
+=head2 new
 
+The constructor.  It takes on optional hashref that will accept the following keys:
+name, birthday, and day.
+
+=head2 name
+
+Get or set the name associated with this biorhythm.  This will usually
+be a person's name.
+
+=head2 birthday
+
+Get or set the birthday used for this biorhythm.
+
+=head2 day
+
+Get or set the current day (which is represented by a Date::Calc::Object).
+
+=head2 next
+
+Go forward one day by incrementing $self->day.
+
+=head2 prev
+
+Go backward one day by decrementing $self->day.
+
+=head2 index
+
+Given a primary cycle (such as 'emotional', 'intellectual', or 'physical'),
+return how many days we are into the cycle.  Note that the first day of the
+cycle returns 0.
+
+=head2 value
+
+Given a primary cycle or secondary cycle, return a value between -1 and 1
+that represents the current amplitude in the cycle.
+
+=head1 SEE ALSO
+
+http://www.facade.com/biorhythm
 
 =head1 AUTHOR
 
-T. M. Brannon, <tbone@cpan.org>
-
-=head1 REFERENCES
-
-
+John Beppu E<lt>beppu@cpan.orgE<gt>
 
 =cut

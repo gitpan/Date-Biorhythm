@@ -1,5 +1,14 @@
 Revision history for Perl extension Date::Biorhythm.
 
+2.0   Sat Aug 12 21:07:06 PDT 2006
+        - Moosified by BEPPU
+
+1.2
+        - same as 1.1 but uploaded to CPAN by BEPPU
+
+1.1
+        - version found on BackPAN and written by TBONE
+
 0.01  Wed Nov 21 15:24:10 2001
 	- original version; created by h2xs 1.1.1.4 with options
 		-A -X -n Date::Biorhythm

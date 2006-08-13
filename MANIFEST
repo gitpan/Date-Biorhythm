@@ -1,5 +1,6 @@
-lib/Date/Biorhythm.pm
 Changes
+lib/Date/Biorhythm.pm
 Makefile.PL
-MANIFEST
+MANIFEST			This list of files
 test.pl
+META.yml                                 Module meta-data (added by MakeMaker)

@@ -5,6 +5,9 @@ WriteMakefile(
     'NAME'		=> 'Date::Biorhythm',
     'VERSION_FROM'	=> 'lib/Date/Biorhythm.pm', # finds $VERSION
     'PREREQ_PM'		=> {
-      Date::Business => 1.2
+      'Date::Business'           => 1.2,
+      'Date::Calc'               => 0,
+      'Moose'                    => 0,
+      'Class::Data::Inheritable' => 0,
     }, # e.g., Module::Name => 1.1
 );

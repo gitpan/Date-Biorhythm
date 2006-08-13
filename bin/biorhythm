@@ -42,19 +42,18 @@ GetOptions(
 
 die "--birthday=YYYY-MM-DD" unless ($__birthday);
 
-$__birthday = Date::Calc::Object->new(0, map { s/^0// } split(/-|\//, $__birthday));
-$__birthday = Date::Calc::Object->new(0, 1975, 12, 6);
+$__birthday = Date::Calc::Object->new(0, map { s/^0//; $_ } split(/-|\//, $__birthday));
 if ($__day) {
-  $__day = Date::Calc::Object->new(0, map { s/^0// } split(/-|\//, $__day));
+  $__day = Date::Calc::Object->new(0, map { s/^0//; $_ } split(/-|\//, $__day));
 } else {
   $__day = Date::Calc::Object->today;
 }
 
-my $biorhythm = Date::Biorhythm->new(
+my $biorhythm = Date::Biorhythm->new({
   name     => $ENV{USER} || 'you',
   birthday => $__birthday,
   day      => $__day
-);
+});
 
 my ($begin, $end) = split(':', $__range);
 
@@ -62,6 +61,9 @@ die "positive integers please" if ($begin < 0);
 die "positive integers please" if ($end   < 0);
 
 my $iterations = 1;
+
+print "# $__birthday\n";
+print "# $__day\n";
 
 print "  {\n";
 if ($begin) {

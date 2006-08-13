@@ -2,6 +2,10 @@ NAME
     Date::Biorhythm - a biorhythm calculator
 
 SYNOPSIS
+    From the command line
+
+      biorhythm --birthday=1994-10-09
+
     Usage
 
       use Date::Biorhythm;
@@ -25,17 +29,23 @@ DESCRIPTION
     form for date entry.
 
     I vaguely remembered there being a Perl module for biorhythm
-    calculation, but I couldn't find it on CPAN. Further investigation
-    finally led me to BackPAN where I found Date::Biorhythm 1.1 written by
-    Terrence Brannon (a long time ago).
+    calculation, but I couldn't find it on CPAN. However, further
+    investigation finally led me to BackPAN where I found Date::Biorhythm
+    1.1 which was written by Terrence Brannon (a long time ago).
 
     Wanting an excuse to try Moose out, I decided to make a new and
     modernized version of Date::Biorhythm, and this is the result.
 
 BUT WTF IS A BIORHYTHM?
+    !http://i41.photobucket.com/albums/e271/sr5i/GoogleMotherFucker.jpg!
+
     http://en.wikipedia.org/wiki/Biorhythm
 
 METHODS
+  meta
+    This method was added by Moose, and it gives you access to
+    Date::Biorhythm's metaclass. (See Moose for more details.)
+
   new
     The constructor. It takes on optional hashref that will accept the
     following keys: name, birthday, and day.
@@ -70,5 +80,7 @@ SEE ALSO
     http://www.facade.com/biorhythm
 
 AUTHOR
+    Terrence Brannon <metaperl@gmail.com>
+
     John Beppu <beppu@cpan.org>
 

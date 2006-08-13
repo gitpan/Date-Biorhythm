@@ -7,7 +7,7 @@ use Moose;
 use Date::Calc::Object qw(:all);
 use Math::Trig qw(:pi pi);
 
-our $VERSION = '2.0';
+our $VERSION = '2.1';
 
 our $WAVELENGTH = {
   emotional    => 28,
@@ -110,6 +110,10 @@ Date::Biorhythm - a biorhythm calculator
 
 =head1 SYNOPSIS
 
+From the command line
+
+  biorhythm --birthday=1994-10-09
+
 Usage
 
   use Date::Biorhythm;
@@ -134,15 +138,17 @@ http://www.facade.com/biorhythm and having to deal with their
 web-based form for date entry.
 
 I vaguely remembered there being a Perl module for biorhythm
-calculation, but I couldn't find it on CPAN.  Further investigation
-finally led me to BackPAN where I found Date::Biorhythm 1.1 written
-by Terrence Brannon (a long time ago).
+calculation, but I couldn't find it on CPAN.  However, further
+investigation finally led me to BackPAN where I found Date::Biorhythm
+1.1 which was written by Terrence Brannon (a long time ago).
 
 Wanting an excuse to try L<Moose|Moose> out, I decided to make a
 new and modernized version of Date::Biorhythm, and this is the
 result.
 
 =head1 BUT WTF IS A BIORHYTHM?
+
+!http://i41.photobucket.com/albums/e271/sr5i/GoogleMotherFucker.jpg!
 
 http://en.wikipedia.org/wiki/Biorhythm
 
@@ -195,6 +201,8 @@ that represents the current amplitude in the cycle.
 http://www.facade.com/biorhythm
 
 =head1 AUTHOR
+
+Terrence Brannon E<lt>metaperl@gmail.comE<gt>
 
 John Beppu E<lt>beppu@cpan.orgE<gt>
 

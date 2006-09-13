@@ -15,7 +15,6 @@ sub print_day {
       %s => '%1.5f',
       %s => '%1.5f',
       %s => '%1.5f',
-      %s => '%1.5f',
     },
     /, 
     $biorhythm->day->string,
@@ -23,8 +22,6 @@ sub print_day {
     $biorhythm->value('emotional'),
     'intellectual',
     $biorhythm->value('intellectual'),
-    'intuitional',
-    $biorhythm->value('intuitional'),
     'physical',
     $biorhythm->value('physical'),
   );

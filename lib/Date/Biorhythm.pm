@@ -5,14 +5,13 @@ use warnings;
 
 use Moose;
 use Date::Calc::Object qw(:all);
-use Math::Trig qw(:pi pi);
+use Math::Trig;
 
-our $VERSION = '2.1';
+our $VERSION = '2.2';
 
 our $WAVELENGTH = {
   emotional    => 28,
   intellectual => 33,
-  intuitional  => 28,
   physical     => 23,
 };
 
@@ -50,7 +49,6 @@ sub BUILD {
   $self->{__cache} = {
     emotional    => [],
     intellectual => [],
-    intuitional  => [],
     physical     => [],
   };
 }
@@ -83,7 +81,7 @@ sub value {
       return $self->{__cache}{$cycle}[$day];
     } else {
       return $self->{__cache}{$cycle}[$day] = 
-        sin(pi2 * ($day / $WAVELENGTH->{$cycle}));
+        sin(pi * 2 * ($day / $WAVELENGTH->{$cycle}));
     }
   }
 }
